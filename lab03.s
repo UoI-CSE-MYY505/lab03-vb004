@@ -99,8 +99,34 @@ outShowRowLoop:
 
 rgb888_to_rgb565:
 # ----------------------------------------
-# Write your code here.
-# You may move the "return" instruction (jalr zero, ra, 0).
+add  t0, zero, zero # row counter
+rowLoop:
+    bge  t0, a2, outRowLoop
+    add  t1, zero, zero # column counter
+columnLoop:
+    bge  t1, a1, outColumnLoop
+    lbu  t2, 0(a0)   # r
+    lbu  t3, 1(a0)   # g
+    lbu  t4, 2(a0)   # b
+    andi t2, t2, 0xf8   # clear 3 lsbs
+    slli t2, t2, 8      # shift to final place of R in RGB565 format
+    andi t3, t3, 0xfc   # clear 2 lsbs
+    slli t3, t3, 3      # shift to final place of G in RGB565 format
+    srli t4, t4, 3      # remove 3 lsbs of blue
+    or   t2, t2, t3
+    or   t2, t2, t4
+    sh   t2, 0(a3)   # store 16bits (half word) in RGB565 format to output
+    addi a0, a0, 3   # move input pointer to next pixel
+    addi a3, a3, 2   # move ouput pointer to next pixel
+    addi t1, t1, 1
+    j    columnLoop
+outColumnLoop:
+    addi t0, t0, 1
+    j    rowLoop
+outRowLoop:
     jalr zero, ra, 0
+
+# You may move the "return" instruction (jalr zero, ra, 0).
+  
 
 
